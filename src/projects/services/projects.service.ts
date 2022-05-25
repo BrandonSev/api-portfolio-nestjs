@@ -1,3 +1,4 @@
+import { ProjectUpdateInput } from './../dto/project-update.dto';
 import { ProjectCreateInput } from '../dto/project-create.dto';
 import { Project } from '../projects.entity';
 import { Injectable } from '@nestjs/common';
@@ -16,15 +17,12 @@ export class ProjectsService {
   }
 
   async create(data: ProjectCreateInput): Promise<Project> {
-    const newProject = await this.projectsRepository
-      .createQueryBuilder()
-      .insert()
-      .into(Project)
-      .values(data)
-      .execute();
-    const project = await this.projectsRepository.findOneOrFail(
-      newProject.identifiers['id'],
-    );
-    return project;
+    const newProject = this.projectsRepository.create(data);
+    return await this.projectsRepository.save(newProject);
+  }
+
+  async update(id: string, data: ProjectUpdateInput): Promise<Project> {
+    await this.projectsRepository.update(id, data);
+    return await this.projectsRepository.findOneOrFail(+id);
   }
 }
